@@ -8,7 +8,7 @@ public class Task {
     private LocalDateTime end_at;
 
     public Task(String name, String task_text, LocalDateTime end_at) {
-        this.name = name;
+        this.task_name = name;
         this.task_text = task_text;
         this.end_at = end_at;
         this.created_at = LocalDateTime.now();
