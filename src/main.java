@@ -1,9 +1,14 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class main {
     public static void main(String[] args) {
+
         System.out.println("Enter command:");
         Scanner sc = new Scanner(System.in);
+
+        List<Task> tasks = null;
+
         boolean active = true;
         while (active) {
             switch (sc.nextLine()) {
@@ -22,6 +27,12 @@ public class main {
                     System.out.println("exit - exits the program");
                     break;
                 }
+
+                case "create": {
+
+                    Task new_task = new Task();
+                }
+
                 default: {
                     System.out.println("Invalid command");
                     break;
