@@ -71,6 +71,13 @@ public class TaskManager {
         }
     }
 
+    public List<Task> searchTasks(String query) {
+        return tasks.stream()
+                .filter(task -> task.getName().toLowerCase().contains(query.toLowerCase()) ||
+                        task.getText().toLowerCase().contains(query.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
     public Task readTask(int id) {
         return getTask(id);
     }

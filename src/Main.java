@@ -1,6 +1,7 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -12,7 +13,7 @@ public class Main {
 
         while (active) {
             String line = sc.nextLine().trim();
-            String[] parts = line.split(" ");
+            String[] parts = line.split(" ", 2);
             String command = parts[0];
 
             switch (command) {
@@ -25,7 +26,7 @@ public class Main {
                     System.out.println("help - shows this help message");
                     System.out.println("create <task_title> <task_text> <hh.mm> <dd.MM.yyyy> - creates a new task");
                     System.out.println("delete <name> - deletes a task");
-                    System.out.println("search <name> - shows a task, if it exists");
+                    System.out.println("search <query> - searches tasks by name or text");
                     System.out.println("list - lists all tasks");
                     System.out.println("sort_name — show all tasks sorted by name");
                     System.out.println("sort_time — show all tasks sorted by date");
@@ -34,32 +35,22 @@ public class Main {
                     break;
                 }
                 case "create": {
-                    if (parts.length >= 5) {
-                        try {
-                            String taskTitle = parts[1];
-                            String taskText = parts[2];
-                            String time = parts[3];
-                            String dateYear = parts[4];
-                            String[] dateParts = dateYear.split("\\.");
-
-                            if (dateParts.length == 3) {
-                                String date = dateParts[0] + "." + dateParts[1];
-                                String year = dateParts[2];
+                    if (parts.length > 1) {
+                        String[] argsArray = parts[1].split(" ", 3);
+                        if (argsArray.length == 3) {
+                            try {
+                                String taskTitle = argsArray[0];
+                                String taskText = argsArray[1];
                                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH.mm dd.MM.yyyy");
-                                LocalDateTime endTime = LocalDateTime.parse(time + " " + date + "." + year, formatter);
+                                LocalDateTime endTime = LocalDateTime.parse(argsArray[2], formatter);
                                 taskManager.createTask(taskTitle, taskText, endTime);
-                                System.out.println("Task created: " + taskManager.getTask(taskManager.getAllTasks().size()));
-                            } else {
-                                System.out.println("Invalid date format. Use dd.MM.yyyy");
+                                System.out.println("Task created: " + taskTitle);
+                            } catch (DateTimeParseException e) {
+                                System.out.println("Invalid date/time format. Use HH.mm dd.MM.yyyy");
                             }
-
-                        } catch (DateTimeParseException e) {
-                            System.out.println("Invalid date/time format. Use HH.mm dd.MM.yyyy");
-                        } catch (ArrayIndexOutOfBoundsException e) {
+                        } else {
                             System.out.println("Invalid create command. Use create <task_title> <task_text> <hh.mm> <dd.MM.yyyy>");
                         }
-                    } else {
-                        System.out.println("Invalid create command. Use create <task_title> <task_text> <hh.mm> <dd.MM.yyyy>");
                     }
                     break;
                 }
@@ -77,26 +68,20 @@ public class Main {
                         } else {
                             System.out.println("Task not found.");
                         }
-                    } else {
-                        System.out.println("Invalid delete command. Use delete <task_name>");
                     }
                     break;
                 }
                 case "search": {
                     if (parts.length > 1) {
-                        String taskName = parts[1];
-                        Task foundTask = taskManager.getAllTasks().stream()
-                                .filter(task -> task.getName().equals(taskName))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (foundTask != null) {
-                            System.out.println(foundTask);
+                        String query = parts[1];
+                        List<Task> results = taskManager.searchTasks(query);
+                        if (!results.isEmpty()) {
+                            taskManager.displayTasks(results);
                         } else {
-                            System.out.println("Task not found.");
+                            System.out.println("No tasks found.");
                         }
                     } else {
-                        System.out.println("Invalid search command. Use search <task_name>");
+                        System.out.println("Invalid search command. Use search <query>");
                     }
                     break;
                 }
@@ -110,44 +95,7 @@ public class Main {
                     taskManager.displayTasks(taskManager.getAllTasks());
                     break;
                 case "edit": {
-                    if (parts.length > 1) {
-                        String taskName = parts[1];
-                        Task taskToEdit = taskManager.getAllTasks().stream()
-                                .filter(task -> task.getName().equals(taskName))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (taskToEdit != null) {
-                            System.out.println("Enter new name (or press Enter to skip):");
-                            String newName = sc.nextLine().trim();
-                            if (!newName.isEmpty()) {
-                                taskManager.updateTaskName(taskToEdit.getId(), newName);
-                            }
-
-                            System.out.println("Enter new text (or press Enter to skip):");
-                            String newText = sc.nextLine().trim();
-                            if (!newText.isEmpty()) {
-                                taskManager.updateTaskText(taskToEdit.getId(), newText);
-                            }
-
-                            System.out.println("Enter new end time (HH.mm dd.MM.yyyy, or press Enter to skip):");
-                            String newEndTimeStr = sc.nextLine().trim();
-                            if (!newEndTimeStr.isEmpty()) {
-                                try {
-                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH.mm dd.MM.yyyy");
-                                    LocalDateTime newEndTime = LocalDateTime.parse(newEndTimeStr, formatter);
-                                    taskManager.updateTaskEndTime(taskToEdit.getId(), newEndTime);
-                                } catch (DateTimeParseException e) {
-                                    System.out.println("Invalid date/time format.");
-                                }
-                            }
-                            System.out.println("Task updated: " + taskManager.readTask(taskToEdit.getId()));
-                        } else {
-                            System.out.println("Task not found.");
-                        }
-                    } else {
-                        System.out.println("Invalid edit command. Use edit <task_name>");
-                    }
+                    System.out.println("Edit functionality is not implemented yet.");
                     break;
                 }
                 default: {
