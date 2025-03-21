@@ -95,8 +95,44 @@ public class Main {
                     taskManager.displayTasks(taskManager.getAllTasks());
                     break;
                 case "edit": {
-                    System.out.println("Edit functionality is not implemented yet.");
-                    break;
+                    if (parts.length > 1) {
+                        String taskName = parts[1];
+                        Task taskToEdit = taskManager.getAllTasks().stream()
+                                .filter(task -> task.getName().equals(taskName))
+                                .findFirst()
+                                .orElse(null);
+
+                        if (taskToEdit != null) {
+                            System.out.println("Enter new name (or press Enter to skip):");
+                            String newName = sc.nextLine().trim();
+                            if (!newName.isEmpty()) {
+                                taskManager.updateTaskName(taskToEdit.getId(), newName);
+                            }
+
+                            System.out.println("Enter new text (or press Enter to skip):");
+                            String newText = sc.nextLine().trim();
+                            if (!newText.isEmpty()) {
+                                taskManager.updateTaskText(taskToEdit.getId(), newText);
+                            }
+
+                            System.out.println("Enter new end time (HH.mm dd.MM.yyyy, or press Enter to skip):");
+                            String newEndTimeStr = sc.nextLine().trim();
+                            if (!newEndTimeStr.isEmpty()) {
+                                try {
+                                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH.mm dd.MM.yyyy");
+                                    LocalDateTime newEndTime = LocalDateTime.parse(newEndTimeStr, formatter);
+                                    taskManager.updateTaskEndTime(taskToEdit.getId(), newEndTime);
+                                } catch (DateTimeParseException e) {
+                                    System.out.println("Invalid date/time format.");
+                                }
+                            }
+                            System.out.println("Task updated: " + taskManager.readTask(taskToEdit.getId()));
+                        } else {
+                            System.out.println("Task not found.");
+                        }
+                    } else {
+                        System.out.println("Invalid edit command. Use edit <task_name>");
+                    }
                 }
                 default: {
                     System.out.println("Invalid command");
